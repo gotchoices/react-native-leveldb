@@ -387,6 +387,13 @@ void installLeveldb(jsi::Runtime& jsiRuntime, std::string documentDir) {
       jsi::PropNameID::forAscii(jsiRuntime, "leveldbNewWriteBatch"),
       0,
       [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+        // Reuse cleared slots to avoid unbounded growth if callers create many batches.
+        for (int i = 0; i < (int)batches.size(); i++) {
+          if (!batches[i].get()) {
+            batches[i] = std::unique_ptr<leveldb::WriteBatch>(new leveldb::WriteBatch());
+            return jsi::Value(i);
+          }
+        }
         batches.push_back(std::unique_ptr<leveldb::WriteBatch>(new leveldb::WriteBatch()));
         return jsi::Value((int)batches.size() - 1);
       }
@@ -407,10 +414,13 @@ void installLeveldb(jsi::Runtime& jsiRuntime, std::string documentDir) {
         std::string batchErr;
         leveldb::WriteBatch* batch = valueToWriteBatch(arguments[1], &batchErr);
         if (!batch) {
-          throw jsi::JSError(runtime, "leveldbWriteBatchPut/" + batchErr);
+          throw jsi::JSError(runtime, "leveldbWriteWriteBatch/" + batchErr);
         }
 
-        db->Write(leveldb::WriteOptions(), batch);
+        leveldb::Status status = db->Write(leveldb::WriteOptions(), batch);
+        if (!status.ok()) {
+          throw jsi::JSError(runtime, "leveldbWriteWriteBatch/" + status.ToString());
+        }
 
         return nullptr;
       }
@@ -674,4 +684,5 @@ void installLeveldb(jsi::Runtime& jsiRuntime, std::string documentDir) {
 void cleanupLeveldb() {
   iterators.clear();
   dbs.clear();
+  batches.clear();
 }
