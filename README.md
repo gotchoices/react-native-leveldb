@@ -6,6 +6,13 @@ Superfast React Native bindings for LevelDB:
 * completely synchronous, blocking API (even on slow devices, a single read or write takes 0.1ms)
 * use it with Flatbuffers to turbo charge your app - support for binary data via ArrayBuffers
 
+## What this package is
+
+`rn-leveldb` is a fork of [`react-native-leveldb`](https://github.com/greentriangle/react-native-leveldb) published under a new npm name.
+
+Key fork feature:
+- **Atomic multi-key writes via native LevelDB `WriteBatch`** exposed to JS/TS as `LevelDBWriteBatch` + `db.write(batch)`.
+
 ## Installation
 
 ```sh
@@ -54,6 +61,20 @@ iter.close();
 
 db.close();  // Same for databases.
 
+```
+
+## Atomic batch writes
+
+```ts
+import {LevelDB, LevelDBWriteBatch} from "rn-leveldb";
+
+const db = new LevelDB('example.db', true, false);
+const batch = new LevelDBWriteBatch();
+batch.put('k1', 'v1');
+batch.put('k2', 'v2');
+db.write(batch); // atomic at the LevelDB layer
+batch.close();
+db.close();
 ```
 
 ## Contributing
