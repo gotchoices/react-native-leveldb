@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
   dependencies: {
-    'reactnativeleveldb': {
+    'rn-leveldb': {
       root: path.join(__dirname, '..'),
     },
   },

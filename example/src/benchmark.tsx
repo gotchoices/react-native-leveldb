@@ -1,4 +1,4 @@
-import {LevelDB} from "react-native-leveldb";
+import {LevelDB} from "rn-leveldb";
 import {Text} from "react-native";
 import * as React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";

@@ -86,7 +86,7 @@ void installLeveldb(jsi::Runtime& jsiRuntime, std::string documentDir) {
   if (documentDir[documentDir.length() - 1] != '/') {
     documentDir += '/';
   }
-  std::cout << "Initializing react-native-leveldb with document dir \"" << documentDir << "\"" << "\n";
+  std::cout << "Initializing rn-leveldb with document dir \"" << documentDir << "\"" << "\n";
 
   auto leveldbOpen = jsi::Function::createFromHostFunction(
       jsiRuntime,

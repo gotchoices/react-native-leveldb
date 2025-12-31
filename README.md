@@ -1,4 +1,4 @@
-# react-native-leveldb
+# rn-leveldb
 Sponsored by ![GreenTriangle](https://www.green-triangle.com/wp-content/uploads/2021/04/Logo-300x66.png)
 
 Superfast React Native bindings for LevelDB:
@@ -9,14 +9,14 @@ Superfast React Native bindings for LevelDB:
 ## Installation
 
 ```sh
-yarn add react-native-leveldb
+yarn add rn-leveldb
 cd ios && pod install
 ```
 
 ## Usage
 
 ```ts
-import {LevelDB} from "react-native-leveldb";
+import {LevelDB} from "rn-leveldb";
 
 // Open a potentially new database.
 const name = 'example.db';

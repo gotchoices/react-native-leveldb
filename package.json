@@ -1,5 +1,5 @@
 {
-  "name": "react-native-leveldb",
+  "name": "rn-leveldb",
   "version": "3.10.0",
   "description": "Superfast React Native bindings for LevelDB",
   "main": "lib/commonjs/index",
@@ -13,7 +13,7 @@
     "android",
     "ios",
     "cpp",
-    "react-native-leveldb.podspec",
+    "rn-leveldb.podspec",
     "!lib/typescript/example",
     "!android/build",
     "!android/.cxx",

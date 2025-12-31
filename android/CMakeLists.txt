@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set (PACKAGE_NAME "react-native-leveldb")
+set (PACKAGE_NAME "rn-leveldb")
 set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 
 set (LEVELDB_BUILD_TESTS OFF CACHE INTERNAL "Really don't build LevelDB tests") # FORCE implied by INTERNAL

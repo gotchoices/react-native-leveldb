@@ -1,4 +1,4 @@
-import {LevelDB, LevelDBWriteBatch} from "react-native-leveldb";
+import {LevelDB, LevelDBWriteBatch} from "rn-leveldb";
 import {bufEquals, getRandomString} from "./test-util";
 
 export function leveldbExample(): boolean {
@@ -69,7 +69,7 @@ export function leveldbTestMerge(batchMerge: boolean) {
   if (dbDst.getStr('key2') != 'valueNew') {
     errors.push(`key2 didn't have expected value: ${dbDst.getStr('key2')}`);
   }
-  if (!bufEquals(dbDst.getBuf(key3.buffer)!, value3New)) {
+  if (!bufEquals(dbDst.getBuf(key3.buffer)!, value3New.buffer)) {
     errors.push(`key3 (buf) didn't have expected value: ${new Uint8Array(dbDst.getBuf(key3.buffer)!)}`);
   }
   if (dbDst.getStr('keep') != 'value') {
@@ -97,10 +97,10 @@ function leveldbTestWriteBatch() {
   writeBatch.close();
 
   const errors: string[] = []
-  if (!bufEquals(dbDst.getBuf(key1.buffer)!, value1)) {
+  if (!bufEquals(dbDst.getBuf(key1.buffer)!, value1.buffer)) {
     errors.push(`leveldbTestWriteBatch: key1 didn't have expected value: ${new Uint8Array(dbDst.getBuf(key1.buffer)!)}`);
   }
-  if (!bufEquals(dbDst.getBuf(key2.buffer)!, value2)) {
+  if (!bufEquals(dbDst.getBuf(key2.buffer)!, value2.buffer)) {
     errors.push(`leveldbTestWriteBatch: key2 didn't have expected value: ${new Uint8Array(dbDst.getBuf(key2.buffer)!)}`);
   }
 

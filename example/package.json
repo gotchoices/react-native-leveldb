@@ -1,6 +1,6 @@
 {
   "name": "react-native-leveldb-example",
-  "description": "Example app for react-native-leveldb",
+  "description": "Example app for rn-leveldb",
   "version": "0.0.1",
   "private": true,
   "scripts": {

@@ -3,7 +3,7 @@ require "json"
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
 Pod::Spec.new do |s|
-  s.name         = "react-native-leveldb"
+  s.name         = "rn-leveldb"
   s.version      = package["version"]
   s.summary      = package["description"]
   s.homepage     = package["homepage"]
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     :GCC_PREPROCESSOR_DEFINITIONS => "LEVELDB_IS_BIG_ENDIAN=0 LEVELDB_PLATFORM_POSIX HAVE_FULLFSYNC=1",
-    :HEADER_SEARCH_PATHS => "\"${PROJECT_DIR}/Headers/Public/react-native-leveldb/leveldb/include/\" \"${PROJECT_DIR}/Headers/Public/react-native-leveldb/leveldb/\"",
+    :HEADER_SEARCH_PATHS => "\"${PROJECT_DIR}/Headers/Public/rn-leveldb/leveldb/include/\" \"${PROJECT_DIR}/Headers/Public/rn-leveldb/leveldb/\"",
     :WARNING_CFLAGS => "-Wno-shorten-64-to-32 -Wno-comma -Wno-unreachable-code -Wno-conditional-uninitialized -Wno-deprecated-declarations",
     :USE_HEADERMAP => "No"
   }
@@ -26,3 +26,5 @@ Pod::Spec.new do |s|
 
   s.dependency "React-Core"
 end
+
+
