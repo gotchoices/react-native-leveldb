@@ -7,8 +7,8 @@ We want this community to be friendly and respectful to each other. Please follo
 To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
 
 ```sh
-# Install everything, including Pods!
-yarn
+# Recommended: install deps, set up the example app, and install pods
+yarn bootstrap
 ```
 
 While developing, you can run the [example app](/example/) to test your changes.

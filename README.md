@@ -81,6 +81,12 @@ db.close();
 
 See the [contributing guide](CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
 
+## Example app / smoke tests
+
+The included example app runs basic smoke tests (and benchmarks) on startup.
+
+See `CONTRIBUTING.md` for the exact commands to run the example on iOS/Android.
+
 ## License
 
 MIT

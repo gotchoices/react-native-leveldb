@@ -17,7 +17,7 @@ It was discovered that the react-native-leveldb repo contained an [open pull req
 
 ## Questions
 - Is it correct that leveldb has its own batch features to transactionalize writes (and perhaps other operations)?
-- Is it correct that react-native-leveldb does not full access those batch features?
+- Is it correct that react-native-leveldb does not fully access those batch features?
 - Is it correct that applied PR to facilitate batch writes does not really access leveldb's batch features but instead engages in a loop to implement its own all-or-nothing write transaction?
 - Wouldn't it be more efficient to give proper access to native leveldb batch features?
 - Is this reasonable/feasible?
@@ -26,6 +26,7 @@ It was discovered that the react-native-leveldb repo contained an [open pull req
 - If so, can it become a package that any ts package could include to have access to leveldb?
 - Is there already some well-supported package that does exactly that?
 - The classic-level package provides leveldb access to javascript cosumers but is very much bound to node.js
+- The classic-level package provides leveldb access to javascript consumers but is very much bound to node.js
 - Do we have a similar problem trying to use leveldb in react-native?  Must the package take on a very specific profile in order to work at all for react-native.
 
 ## Answers (confirmed in this codebase)

@@ -41,13 +41,16 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/greentriangle/react-native-leveldb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gotchoices/rn-leveldb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gotchoices/rn-leveldb/issues"
+  },
+  "homepage": "https://github.com/gotchoices/rn-leveldb#readme",
   "author": "GreenTriangle <chris@green-triangle.com> (https://github.com/greentriangle)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/greentriangle/react-native-leveldb/issues"
-  },
-  "homepage": "https://github.com/greentriangle/react-native-leveldb#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
