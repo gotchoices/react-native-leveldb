@@ -10,7 +10,7 @@ export function runRnLeveldbSmokeTests(): string[] {
   // Some smoke tests can trigger native crashes (e.g. use-after-close scenarios that aren't guarded natively).
   // Re-enable gradually and watch Metro logs for the last "[smoke] start ..." line.
   const enableBinaryKeyTests = true;
-  const enableCrashyLifecycleTests = false;
+  const enableUnsafeNegativeTests = false;
 
   const tests: Array<{ name: string; fn: TestFn }> = [
     { name: 'open/close + closed()', fn: testOpenClose },
@@ -22,14 +22,16 @@ export function runRnLeveldbSmokeTests(): string[] {
     { name: 'iterator seekToFirst/seekLast ordering', fn: testIteratorOrdering },
     { name: 'iterator seek + compareKey', fn: testIteratorSeekCompare },
     { name: 'iterator close -> further use throws', fn: testIteratorCloseThrows },
-    ...(enableCrashyLifecycleTests ? [{ name: 'iterator after DB close -> throws', fn: testIteratorAfterDbCloseThrows }] : []),
     ...(enableBinaryKeyTests ? [{ name: 'binary keys: ordering + seek', fn: testBinaryKeysOrderingSeek }] : []),
     { name: 'WriteBatch: put two keys', fn: testWriteBatchPutTwo },
     { name: 'WriteBatch: last-write-wins', fn: testWriteBatchLastWriteWins },
     { name: 'WriteBatch: delete wins if last', fn: testWriteBatchDeleteLastWins },
     { name: 'WriteBatch close -> further use throws', fn: testWriteBatchCloseThrows },
     { name: 'DB close prevents further use', fn: testDbClosePreventsUse },
-    ...(enableCrashyLifecycleTests ? [{ name: 'destroyDB: open/closed/force semantics', fn: testDestroyDbSemantics }] : []),
+    { name: 'destroyDB: throws if open', fn: testDestroyDbThrowsIfOpen },
+    { name: 'destroyDB: removes closed DB', fn: testDestroyDbRemovesClosedDb },
+    ...(enableUnsafeNegativeTests ? [{ name: 'UNSAFE: iterator after DB close -> throws (may crash native)', fn: unsafeTestIteratorAfterDbCloseThrows }] : []),
+    ...(enableUnsafeNegativeTests ? [{ name: 'UNSAFE: destroyDB(force) while open (may crash native)', fn: unsafeTestDestroyDbForceWhileOpen }] : []),
   ];
 
   for (const t of tests) {
@@ -50,9 +52,8 @@ export function runRnLeveldbSmokeTests(): string[] {
   return results;
 }
 
-// Keep temporarily-disabled tests "referenced" so TS/linters don't flag them as unused.
-// Re-enable by uncommenting the entries in `tests` above.
-void [testIteratorAfterDbCloseThrows, testBinaryKeysOrderingSeek, testDestroyDbSemantics];
+// Keep optional/unsafe tests "referenced" so TS/linters don't flag them as unused.
+void [testBinaryKeysOrderingSeek, unsafeTestIteratorAfterDbCloseThrows, unsafeTestDestroyDbForceWhileOpen];
 
 function newDbName(prefix: string): string {
   return `${prefix}-${getRandomString(12)}.db`;
@@ -202,7 +203,7 @@ function testIteratorCloseThrows(): void {
   }
 }
 
-function testIteratorAfterDbCloseThrows(): void {
+function unsafeTestIteratorAfterDbCloseThrows(): void {
   const name = newDbName('iter-after-db-close');
   const db = new LevelDB(name, true, false);
   const it = db.newIterator();
@@ -319,19 +320,23 @@ function testDbClosePreventsUse(): void {
   assertThrows(() => db.put('k', 'v'), 'expected db.put to throw after close');
 }
 
-function testDestroyDbSemantics(): void {
+function testDestroyDbThrowsIfOpen(): void {
   const name = newDbName('destroy');
 
-  // destroy should fail if DB is open (unless forced)
   const db = new LevelDB(name, true, false);
   db.put('k', 'v');
   assertThrows(() => LevelDB.destroyDB(name), 'expected destroyDB to throw if DB is open');
+  db.close();
+}
 
-  // forced destroy should succeed
-  LevelDB.destroyDB(name, true);
-  assert(db.closed(), 'expected existing ref to report closed after forced destroy');
+function testDestroyDbRemovesClosedDb(): void {
+  const name = newDbName('destroy-closed');
 
-  // and opening without createIfMissing should now fail
+  const db = new LevelDB(name, true, false);
+  db.put('k', 'v');
+  db.close();
+
+  LevelDB.destroyDB(name);
   assertThrows(
     () => {
       const reopened = new LevelDB(name, false, false);
@@ -339,6 +344,18 @@ function testDestroyDbSemantics(): void {
     },
     'expected open(createIfMissing=false) to throw after destroyDB'
   );
+}
+
+function unsafeTestDestroyDbForceWhileOpen(): void {
+  const name = newDbName('destroy-force');
+  const db = new LevelDB(name, true, false);
+  db.put('k', 'v');
+
+  // This may invalidate native handles in a way that's not fully guarded in native code.
+  LevelDB.destroyDB(name, true);
+
+  // At minimum, the JS wrapper should report closed.
+  assert(db.closed(), 'expected existing ref to report closed after forced destroy');
 }
 
 

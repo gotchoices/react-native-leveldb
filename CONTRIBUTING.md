@@ -72,6 +72,7 @@ yarn example ios   # or: yarn example android
 - **Stress tests**: large values, many keys, long iterators; memory/leak checks under repeated open/close + iterator creation.
 - **Concurrency**: multi-thread / re-entrancy / “refresh” scenarios across RN reloads (if supporting them).
 - **E2E automation**: run the native smoke tests in CI using Detox (assert UI shows `SUMMARY: ... passed`).
+- **Unsafe negative tests**: use-after-close / force-destroy scenarios can crash native code if not explicitly guarded. Keep behind opt-in flags until native guards are added.
 
 Remember to add tests for your change if possible. Run the unit tests by:
 
