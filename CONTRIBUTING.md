@@ -42,6 +42,37 @@ To fix formatting errors, run the following:
 yarn lint --fix
 ```
 
+## Testing
+
+### JS-only tests
+
+Run:
+
+```sh
+yarn test
+```
+
+This only covers JS/TS-level tests (it does not exercise the native iOS/Android bindings).
+
+### Native smoke tests (recommended for regression)
+
+The example app runs native smoke tests on startup and prints results in the UI (prefixed with `Smoke:` and ending with `SUMMARY: X/Y passed`).
+
+Run the example app:
+
+```sh
+yarn bootstrap
+yarn example start
+yarn example ios   # or: yarn example android
+```
+
+### Deferred / higher-effort tests (future)
+
+- **Crash-safety / durability**: verify behavior under forced termination / power-loss scenarios (especially if adding `WriteOptions.sync` support).
+- **Stress tests**: large values, many keys, long iterators; memory/leak checks under repeated open/close + iterator creation.
+- **Concurrency**: multi-thread / re-entrancy / “refresh” scenarios across RN reloads (if supporting them).
+- **E2E automation**: run the native smoke tests in CI using Detox (assert UI shows `SUMMARY: ... passed`).
+
 Remember to add tests for your change if possible. Run the unit tests by:
 
 ```sh

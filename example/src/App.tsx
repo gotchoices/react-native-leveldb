@@ -7,17 +7,19 @@ import {
   BenchmarkResultsView
 } from "./benchmark";
 import {leveldbExample, leveldbTests} from "./example";
+import { runRnLeveldbSmokeTests } from './rnleveldb-smoke-tests';
 
 interface BenchmarkState {
   leveldb?: BenchmarkResults;
   leveldbExample?: boolean;
   leveldbTests: string[];
+  smokeTests: string[];
   asyncStorage?: BenchmarkResults;
   error?: string;
 }
 
 export default class App extends React.Component<{}, BenchmarkState> {
-  state: BenchmarkState = {leveldbTests: []};
+  state: BenchmarkState = {leveldbTests: [], smokeTests: []};
 
   componentDidMount() {
     try {
@@ -25,6 +27,7 @@ export default class App extends React.Component<{}, BenchmarkState> {
         leveldb: benchmarkLeveldb(),
         leveldbExample: leveldbExample(),
         leveldbTests: leveldbTests(),
+        smokeTests: runRnLeveldbSmokeTests(),
       });
 
       benchmarkAsyncStorage().then(res => this.setState({asyncStorage: res}));
@@ -40,6 +43,9 @@ export default class App extends React.Component<{}, BenchmarkState> {
         {this.state.leveldb && <BenchmarkResultsView title="LevelDB" {...this.state.leveldb} />}
         {this.state.leveldbTests && this.state.leveldbTests.map((msg, idx) =>
           <Text key={idx}>Test: {msg}</Text>
+        )}
+        {this.state.smokeTests && this.state.smokeTests.map((msg, idx) =>
+          <Text key={`smoke-${idx}`}>Smoke: {msg}</Text>
         )}
         {this.state.asyncStorage && <BenchmarkResultsView title="AsyncStorage" {...this.state.asyncStorage} />}
         {this.state.error && <Text>ERROR RUNNING: {this.state.error}</Text>}

@@ -23,7 +23,7 @@
     "@react-native/babel-preset": "0.79.6",
     "@react-native/eslint-config": "0.79.6",
     "@react-native/metro-config": "0.79.6",
-    "babel-plugin-module-resolver": "^5.0.2",
-    "@types/react": "^19.0.0"
+    "@types/react": "^19.0.0",
+    "babel-plugin-module-resolver": "^5.0.2"
   }
 }
