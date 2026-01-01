@@ -7,10 +7,7 @@ We want this community to be friendly and respectful to each other. Please follo
 To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
 
 ```sh
-# First, download leveldb.
-git submodule update --init --recursive
-
-# Then, install everything else, including Pods!
+# Install everything, including Pods!
 yarn
 ```
 

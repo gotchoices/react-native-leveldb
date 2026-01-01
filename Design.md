@@ -75,16 +75,16 @@ It was discovered that the react-native-leveldb repo contained an [open pull req
 ### Vendoring / submodules / consumer build pipeline
 
 - **This repo has some kind of sub-repo that is leveldb**
-  - **Answer**: Yes: `cpp/leveldb` is a git submodule pointing at Google’s LevelDB repo. (see `.gitmodules`)
-  - **Related**: the LevelDB submodule itself has submodules (`third_party/googletest`, `third_party/benchmark`). (see `cpp/leveldb/.gitmodules`)
+  - **Answer**: `cpp/leveldb` is **vendored source** (a static copy) of Google LevelDB, shipped as part of the `rn-leveldb` npm package.
+  - **Maintainer note**: use `yarn update-leveldb` to refresh this vendored copy from upstream when needed.
 
 - **In order to build the repo, the leveldb subrepo must be populated, then there is some kind of build procedure**
-  - **Answer**: Yes: this repo expects `git submodule update --init --recursive` to be run for dev setup. (see `CONTRIBUTING.md`)
-  - **Answer**: A convenience script already exists: `yarn bootstrap` runs that submodule init and then installs deps + example + pods. (see `package.json`)
+  - **Answer**: No special fetch step is required for consumers: the npm package includes the C++ sources under `cpp/`.
+  - **Answer**: For development, use `yarn bootstrap` to install deps + example + pods.
 
 - **It would be nice to have a simple pipeline so that react-native consumers of quereus could just do 'yarn install' and have their app work. But it seems like one has to install this repo first and go through some manual steps before quereus can use it.**
   - **Answer**: TBD (needs decision + verification in a real consumer app install).
-  - **Confirmed constraint**: npm/yarn installs **do not automatically init git submodules** for a dependency; if `react-native-leveldb` is consumed via the package registry, it must ship with all required native sources already present (no submodule fetch during install).
+  - **Confirmed constraint**: npm/yarn installs can’t run git submodule initialization for dependencies; vendoring the source avoids that entire class of problems.
   - **Update**: this fork is published as `rn-leveldb`; the above constraint applies to `rn-leveldb` the same way.
 
 - **Is there a clean way to prepare this repo so it can be a simple dependency of quereus that will get configured and built as needed without the user needing to know manual steps to prepare a sub-dependency of quereus?**

@@ -33,7 +33,8 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "git submodule update --init --recursive && yarn example && yarn && yarn pods"
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "update-leveldb": "bash scripts/update-leveldb.sh"
   },
   "keywords": [
     "react-native",
