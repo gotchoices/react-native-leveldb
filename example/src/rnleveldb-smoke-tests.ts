@@ -6,6 +6,12 @@ type TestFn = () => void;
 export function runRnLeveldbSmokeTests(): string[] {
   const results: string[] = [];
   let passed = 0;
+
+  // Some smoke tests can trigger native crashes (e.g. use-after-close scenarios that aren't guarded natively).
+  // Re-enable gradually and watch Metro logs for the last "[smoke] start ..." line.
+  const enableBinaryKeyTests = true;
+  const enableCrashyLifecycleTests = false;
+
   const tests: Array<{ name: string; fn: TestFn }> = [
     { name: 'open/close + closed()', fn: testOpenClose },
     { name: 'getStr missing -> null', fn: testGetStrMissing },
@@ -16,25 +22,27 @@ export function runRnLeveldbSmokeTests(): string[] {
     { name: 'iterator seekToFirst/seekLast ordering', fn: testIteratorOrdering },
     { name: 'iterator seek + compareKey', fn: testIteratorSeekCompare },
     { name: 'iterator close -> further use throws', fn: testIteratorCloseThrows },
-    // NOTE: Temporarily disabled due to causing app startup crashes on some devices/emulators.
-    // { name: 'iterator after DB close -> throws', fn: testIteratorAfterDbCloseThrows },
-    // { name: 'binary keys: ordering + seek', fn: testBinaryKeysOrderingSeek },
+    ...(enableCrashyLifecycleTests ? [{ name: 'iterator after DB close -> throws', fn: testIteratorAfterDbCloseThrows }] : []),
+    ...(enableBinaryKeyTests ? [{ name: 'binary keys: ordering + seek', fn: testBinaryKeysOrderingSeek }] : []),
     { name: 'WriteBatch: put two keys', fn: testWriteBatchPutTwo },
     { name: 'WriteBatch: last-write-wins', fn: testWriteBatchLastWriteWins },
     { name: 'WriteBatch: delete wins if last', fn: testWriteBatchDeleteLastWins },
     { name: 'WriteBatch close -> further use throws', fn: testWriteBatchCloseThrows },
     { name: 'DB close prevents further use', fn: testDbClosePreventsUse },
-    // { name: 'destroyDB: open/closed/force semantics', fn: testDestroyDbSemantics },
+    ...(enableCrashyLifecycleTests ? [{ name: 'destroyDB: open/closed/force semantics', fn: testDestroyDbSemantics }] : []),
   ];
 
   for (const t of tests) {
     try {
+      console.info('[smoke] start', t.name);
       t.fn();
       results.push(`${t.name}: ok`);
       passed++;
+      console.info('[smoke] ok', t.name);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       results.push(`${t.name}: FAIL (${msg})`);
+      console.warn('[smoke] FAIL', t.name, msg);
     }
   }
 
