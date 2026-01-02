@@ -3,7 +3,7 @@ import {StyleSheet, View, Text} from 'react-native';
 import {
   benchmarkAsyncStorage,
   benchmarkLeveldb,
-  BenchmarkResults,
+  type BenchmarkResults,
   BenchmarkResultsView
 } from "./benchmark";
 import {leveldbExample, leveldbTests} from "./example";

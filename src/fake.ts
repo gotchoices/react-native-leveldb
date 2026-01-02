@@ -111,7 +111,9 @@ export function toArraybuf(str: string | ArrayBuffer): ArrayBuffer {
     return str;
   }
   var uint8Arr: Uint8Array = encoder.encode(str);
-  return uint8Arr.buffer;
+  const out = new ArrayBuffer(uint8Arr.byteLength);
+  new Uint8Array(out).set(uint8Arr);
+  return out;
 }
 
 export function arraybufGt(a: ArrayBuffer, b: ArrayBuffer): boolean {

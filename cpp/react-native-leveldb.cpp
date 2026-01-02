@@ -14,6 +14,8 @@ std::vector<std::unique_ptr<leveldb::DB>> dbs;
 std::vector<std::unique_ptr<leveldb::Iterator>> iterators;
 std::vector<std::unique_ptr<leveldb::WriteBatch>> batches;
 
+void cleanupLeveldb();
+
 // Returns false if the passed value is not a string or an ArrayBuffer.
 bool valueToString(jsi::Runtime& runtime, const jsi::Value& value, std::string* str) {
   if (value.isString()) {
@@ -83,6 +85,10 @@ leveldb::WriteBatch* valueToWriteBatch(const jsi::Value& value, std::string* err
 }
 
 void installLeveldb(jsi::Runtime& jsiRuntime, std::string documentDir) {
+  // React Native dev reloads can recreate the JS runtime without restarting the process.
+  // Close any previously opened DB/iterator/batch handles so LevelDB file locks don't linger.
+  cleanupLeveldb();
+
   if (documentDir[documentDir.length() - 1] != '/') {
     documentDir += '/';
   }

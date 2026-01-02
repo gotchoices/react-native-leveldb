@@ -190,10 +190,17 @@ export class LevelDBIterator implements LevelDBIteratorI {
 }
 
 export class LevelDB implements LevelDBI {
-  // Keep references to already open DBs here to facilitate RN's edit-refresh flow.
-  // Note that when editing this file, this won't work, as RN will reload it and the openPathRefs
-  // will be lost.
-  private static openPathRefs: { [name: string]: undefined | number } = {};
+  // Keep references to already open DBs to facilitate RN's reload flow.
+  // This must live on globalThis (not module state) since Metro reloads this module.
+  private static openRefs(): Record<string, number> {
+    const key = '__rn_leveldb_openPathRefs';
+    const host = globalThis as unknown as Record<string, unknown>;
+    const existing = host[key] as undefined | Record<string, number>;
+    if (existing) return existing;
+    const created: Record<string, number> = Object.create(null);
+    host[key] = created;
+    return created;
+  }
   private ref: undefined | number;
 
   constructor(name: string, createIfMissing: boolean, errorIfExists: boolean) {
@@ -201,25 +208,28 @@ export class LevelDB implements LevelDBI {
       throw new Error(nativeModuleInitError);
     }
 
-    if (LevelDB.openPathRefs[name] !== undefined) {
-      this.ref = LevelDB.openPathRefs[name];
+    const openRefs = LevelDB.openRefs();
+    if (openRefs[name] !== undefined) {
+      this.ref = openRefs[name];
     } else {
-      LevelDB.openPathRefs[name] = this.ref = g.leveldbOpen(name, createIfMissing, errorIfExists);
+      openRefs[name] = this.ref = g.leveldbOpen(name, createIfMissing, errorIfExists);
     }
   }
 
   close() {
     g.leveldbClose(this.ref);
-    for (const name in LevelDB.openPathRefs) {
-      if (LevelDB.openPathRefs[name] === this.ref) {
-        delete LevelDB.openPathRefs[name];
+    const openRefs = LevelDB.openRefs();
+    for (const name in openRefs) {
+      if (openRefs[name] === this.ref) {
+        delete openRefs[name];
       }
     }
     this.ref = undefined;
   }
 
   closed(): boolean {
-    return this.ref === undefined || !Object.values(LevelDB.openPathRefs).includes(this.ref);
+    if (this.ref === undefined) return true;
+    return !Object.values(LevelDB.openRefs()).includes(this.ref);
   }
 
   put(k: ArrayBuffer | string, v: ArrayBuffer | string) {
@@ -264,10 +274,11 @@ export class LevelDB implements LevelDBI {
   }
 
   static destroyDB(name: string, force?: boolean) {
-    if (LevelDB.openPathRefs[name] !== undefined) {
+    const openRefs = LevelDB.openRefs();
+    if (openRefs[name] !== undefined) {
       if (force) {
-        g.leveldbClose(LevelDB.openPathRefs[name]);
-        delete LevelDB.openPathRefs[name];
+        g.leveldbClose(openRefs[name]);
+        delete openRefs[name];
       } else {
         throw new Error('DB is open! Cannot destroy');
       }
