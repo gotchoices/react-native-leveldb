@@ -1,5 +1,5 @@
 # rn-leveldb
-Sponsored by [GotChoices](https://www.gotchoics.org)
+Sponsored by [GotChoices.org](https://www.gotchoices.org)
 
 Superfast React Native bindings for LevelDB:
 * 2-7x faster than AsyncStorage or react-native-sqlite-storage - try the benchmarks under example/!
