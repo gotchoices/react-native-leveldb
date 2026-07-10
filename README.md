@@ -87,6 +87,61 @@ The included example app runs basic smoke tests (and benchmarks) on startup.
 
 See `CONTRIBUTING.md` for the exact commands to run the example on iOS/Android.
 
+## Vendored LevelDB source
+
+The C++ LevelDB implementation lives **in-tree** under `cpp/leveldb` (it is *not* a
+git submodule — the source files are committed directly, so a fresh `git clone`
+or `npm install` has everything needed to build).
+
+- **Current version:** LevelDB 1.22 (see `cpp/leveldb/include/leveldb/db.h`).
+- **Refreshing it:** `yarn update-leveldb --ref <tag> --repo https://github.com/google/leveldb.git`
+  (wraps `scripts/update-leveldb.sh`). This clones the given ref, replaces
+  `cpp/leveldb`, and strips nested `.git` metadata. Review the diff, then rebuild
+  the example app on both platforms before releasing.
+- **Local patch:** `env_posix.cc` / `env_windows.cc` spell the `SingletonEnv`
+  atomic memory order as `std::memory_order_relaxed` (backported from
+  google/leveldb `main`). Upstream 1.22 and 1.23 use
+  `std::memory_order::memory_order_relaxed`, which does **not** compile under
+  C++20 (React Native 0.82+ builds pods at C++20, where `std::memory_order` is a
+  scoped enum). **If you re-vendor to a LevelDB release newer than 1.23 that
+  already contains this fix, this patch can be dropped** — re-check those lines
+  after running `update-leveldb`.
+- **Not vendored:** `cpp/leveldb/third_party/{googletest,benchmark}` are omitted.
+  They are test/benchmark-only deps, never compiled by the Android CMake
+  (`LEVELDB_BUILD_TESTS`/`LEVELDB_BUILD_BENCHMARKS` are forced `OFF`) or the iOS
+  podspec, so they are excluded from the repo and the published tarball.
+
+## Releasing / publishing to npm
+
+This package is published to npm as [`rn-leveldb`](https://www.npmjs.com/package/rn-leveldb)
+(owner: `gotchoices`). npm won't accept a re-publish of an existing version, so
+every release needs a version bump.
+
+1. **Commit and push** all changes (including any `cpp/leveldb` updates) to
+   `master` first.
+2. **Bump the version + tag.** Either:
+   - `yarn release` — runs [release-it] (interactive: bumps version, tags,
+     pushes, publishes), or
+   - manual: `npm version patch` (or `minor`/`major`) to bump `package.json` and
+     create a git tag.
+3. **`lib/` is built automatically** by the `prepare` hook (`bob build`) during
+   `npm publish` — no manual build step needed.
+4. **Verify the tarball before publishing:**
+   ```sh
+   npm publish --dry-run
+   ```
+   Confirm it includes `cpp/leveldb/util/env_posix.cc` (with the memory-order
+   fix), the built `lib/`, `android/`, `ios/`, and `rn-leveldb.podspec`, and that
+   `cpp/leveldb/third_party` is absent.
+5. **Log in and publish** (one-time `npm login` as `gotchoices`):
+   ```sh
+   npm publish
+   ```
+6. **Consume it** in a host app: bump the `rn-leveldb` dependency to the new
+   version, `yarn install`, then `cd ios && pod install`, and rebuild.
+
+[release-it]: https://github.com/release-it/release-it
+
 ## License
 
 MIT
